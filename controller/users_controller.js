@@ -1,8 +1,38 @@
 const User = require('../models/user');
 module.exports.profile = function (req , res){
-    return res.render('users_profile',{
-        title : "profile"
-    });
+   /* if (req.cookie.user_id){
+        User.findById(req.cookie.user_id , function (err , user){
+            if(user){
+                return res.render('user_profile',{
+                    title : "User Profile",
+                    user : user
+                })
+            }
+            return res.redirect('/users/sign-in');
+        });
+    } else {
+        return res.redirect('/users/sign-in');
+    }
+}*/
+if (req.cookies.user_id) {
+    User.findById(req.cookies.user_id)
+        .then(user => {
+            if (user) {
+                return res.render('user_profile', {
+                    title: "User Profile",
+                    user: user
+                });
+            }
+            return res.redirect('/users/sign-in');
+        })
+        .catch(err => {
+            console.log("Error in finding user:", err);
+            return res.redirect('/users/sign-in');
+        });
+
+} else {
+    return res.redirect('/users/sign-in');
+}
 }
 //render the signup page
 module.exports.signUp = function(req , res){
@@ -40,7 +70,7 @@ module.exports.create = function (req , res){
                         return res.redirect('/users/sign-in');
                     });
                 } else {
-                    return res.redirect('/sign-up');
+                    return res.redirect('/users/sign-up');
                 }
             })
             .catch(err => {
@@ -49,5 +79,38 @@ module.exports.create = function (req , res){
         }
 //get the sign in data
 module.exports.createSession = function (req , res){
-    //todo
-}
+    //steps to authenticate
+    //find the user
+    
+  /*  User.findOne({ email : req.body.email},function(err , user){
+        if(err){console.log('error in finding user signin');
+           return}
+           //handle user found
+           if(user){
+            //handle password which doesn't match
+            if(user.password != req.body.password){
+                return res.redirect('/users/sign-in');
+            }
+            //handle session creation
+            res.cookie('user_id',user.id);
+            return res.redirect('/users/profile');
+           }else {
+            //handle user not found
+            return res.redirect('/users/sign-in')
+           }*/
+           User.findOne({ email: req.body.email })
+           .then(user => {
+            if (user) {
+                if (user.password != req.body.password) {
+                    return res.redirect('/users/sign-in');
+                }
+                res.cookie('user_id', user.id);
+                return res.redirect('/users/profile');
+            } else {
+                return res.redirect('/users/sign-in');
+            }
+        })
+        .catch(err => {
+            console.log("Error in finding user while signing in:", err);
+        });
+    }

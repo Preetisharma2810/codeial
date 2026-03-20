@@ -7,17 +7,30 @@ passport.use(new LocalStrategy({
 },
   function(email , password , done){
     //find a user and establish the identity
-    User.findOne({email : email},function(err , user){
-        if(err){
-            console.log('error in finding user --> passport');
-            return done(err);
-        }
-        if(!user || user.password != password){
+    /* User.findOne({email : email},function(err , user){
+         if(err){
+             console.log('error in finding user --> passport');
+             return done(err);
+         }
+         if(!user || user.password != password){
+             console.log('invalid username/password');
+             return done(null , false);
+         }
+         return done(null , user);
+     });*/
+    User.findOne({ email: email })
+    .then(user => {
+        if (!user || user.password !== password) {
             console.log('invalid username/password');
-            return done(null , false);
+            return done(null, false);
         }
-        return done(null , user);
+        return done(null, user);
+    })
+    .catch(err => {
+        console.log('error in finding user --> passport');
+        return done(err);
     });
+
   }
 ));
 //serializing the user to decide which key is to be kept in the cookies
@@ -31,9 +44,7 @@ passport.deserializeUser(function (id , done){
             console.log('error in finding user--> paasport');
             return done(err);
         }
-        return done(null , user);
-    });
-});*/
+        return done(null , user);*/
  User.findById(id)
         .then(function (user) {
             return done(null, user);
@@ -43,4 +54,19 @@ passport.deserializeUser(function (id , done){
             return done(err);
         });
 });
+//check if user is authenticated
+passport.checkAuthenticate = function(req , res , next){
+    //if the user is signed in , then pass on the request to the next function (controller's action)
+    if(req.isAuthenticated ()){
+        return next();
+    }
+    //if the user is not signed in
+    return res.redirect('/users/sign-in');
+}
+passport.setAuthenticatesUser = function (req , res , next){
+    if(req.isAuthenticated ()){
+        //req.user contain the current signed in user from the session cookie and we are just sending this to the locals for the views
+        res.locals.user = req.user;
+    }
+}
 module.exports = passport;

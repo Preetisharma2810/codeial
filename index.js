@@ -33,7 +33,6 @@ app.use(session ({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-
 //use express router
 app.use('/',require('./routes'));
 

@@ -83,7 +83,7 @@ module.exports.create = function (req , res){
         }
 //get the sign in data
 module.exports.createSession = function (req , res){
-    console.log("tets",req.user);
+   // console.log("tets",req.user);
     //step to authenticate 
     //find the user
     /*User.findOne({email : req.body.email},function (err , user){

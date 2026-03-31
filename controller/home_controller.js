@@ -1,6 +1,19 @@
+const Post = require('../models/post');
 module.exports.home = function (req , res){
-    console.log(req.cookie);
-    return res.render('home',{
-        title : "home"
+         /* Post.find({}) , function (err , posts){
+            return res.render('home' , {
+              title : "home",
+              posts : posts
+            })
+          };*/    
+          Post.find({})
+  .then((posts) => {
+    return res.render('home', {
+      title: "home",
+      posts : posts
     });
+  })
+  .catch((err) => {
+    console.log(err);
+  });  
 }
